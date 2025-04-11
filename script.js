@@ -232,7 +232,8 @@ function mostrarVistaPrevia() {
 Igualmente autorizo a ${empresa} en condición de empleador para que, en el evento de terminación de contrato por cualquier causa, descuente de mi salario, sueldo, ahorro personal, bonificaciones, prestaciones sociales, indemnizaciones a que tenga derecho las cuotas que estén adeudando hasta llegar al saldo final acordado.`;
 
     pdfDoc.text(textoAutorizacion, 20, 105, {
-        maxWidth: 170
+        maxWidth: 170,
+        align: 'justify'
     });
     pdfDoc.text('Empleado: _________________________', 20, 160);
 
