@@ -131,6 +131,7 @@ function mostrarVistaPrevia() {
     // Obtener valores del formulario y limpiar los puntos para cálculos
     const nombre = document.getElementById('nombre').value;
     const cedula = document.getElementById('cedula').value;
+    const ciudadCedula = document.getElementById('ciudadCedula').value;
     const direccion = document.getElementById('direccion').value;
     const telefono = document.getElementById('telefono').value;
     const empresa = document.getElementById('empresa').value;
@@ -225,7 +226,7 @@ function mostrarVistaPrevia() {
     pdfDoc.setFontSize(11); // Texto normal
 
     const textoAutorizacion =
-        `Yo, ${nombre}, mayor de edad, identificado con la cédula de ciudadanía N° ${cedula} de Monteria, AUTORIZO EXPRESA e IRREVOCABLEMENTE a ${empresa}, para que de mi salario me sean descontados en (${cuotas}) cuotas PONER TIPO DE CUOTA cada una por valor de ${valorCuotaTexto} MCTE ($ ${document.getElementById('valorCuota').value}), hasta completar la suma de ${valorTotalPagarTexto} MCTE ($ ${document.getElementById('totalPagar').value}) como pago total a lo acordado, teniendo como primer vencimiento el día ${fechaFormateada}.
+        `Yo, ${nombre}, mayor de edad, identificado con la cédula de ciudadanía N° ${cedula} de ${ciudadCedula}, AUTORIZO EXPRESA e IRREVOCABLEMENTE a ${empresa}, para que de mi salario me sean descontados en (${cuotas}) cuotas PONER TIPO DE CUOTA cada una por valor de ${valorCuotaTexto} MCTE ($ ${document.getElementById('valorCuota').value}), hasta completar la suma de ${valorTotalPagarTexto} MCTE ($ ${document.getElementById('totalPagar').value}) como pago total a lo acordado, teniendo como primer vencimiento el día ${fechaFormateada}.
 
 Igualmente autorizo a ${empresa} en condición de empleador para que, en el evento de terminación de contrato por cualquier causa, descuente de mi salario, sueldo, ahorro personal, bonificaciones, prestaciones sociales, indemnizaciones a que tenga derecho las cuotas que estén adeudando hasta llegar al saldo final acordado.`;
 
