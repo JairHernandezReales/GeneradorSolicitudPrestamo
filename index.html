@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Solicitud de Préstamo</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Generador de Solicitud de Préstamo</h1>
+
+        <div id="form-container">
+            <div class="form-group">
+                <input type="text" id="nombre" placeholder="Nombre Completo" value="JAIR JOSE HERNANDEZ REALES">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="cedula" placeholder="Cédula" value="123456789">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="direccion" placeholder="Dirección de Residencia" value="Calle 123 # 45-67">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="telefono" placeholder="Teléfono" value="123456789">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="empresa" placeholder="Empresa Laboral" value="Ejemplo S.A.S">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="direccionOficina" placeholder="Dirección Oficina" value="Carrera 10 # 20-30">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="ingresos" placeholder="Ingresos" value="2.000.000" class="numeric-input">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="valorPrestamo" placeholder="Valor del Préstamo" value="1.000.000" class="numeric-input">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="cuotas" placeholder="Número de Cuotas" value="12">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="valorCuota" placeholder="Valor de Cada Cuota" value="83.333" class="numeric-input">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="totalPagar" placeholder="Total a Pagar" value="1.000.000" class="numeric-input">
+            </div>
+
+            <div class="form-group">
+                <input type="date" id="primerVencimiento" placeholder="Primer Vencimiento" value="">
+            </div>
+
+            <button onclick="mostrarVistaPrevia()">Generar Solicitud en PDF</button>
+        </div>
+    </div>
+
+    <div id="preview-container">
+        <h2>Vista previa del documento</h2>
+        <iframe id="pdf-preview"></iframe>
+        <div id="preview-actions">
+            <button id="download-btn" onclick="descargarPDF()">Descargar PDF</button>
+            <button id="close-preview" onclick="cerrarVistaPrevia()">Cerrar vista previa</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
