@@ -139,6 +139,7 @@ function mostrarVistaPrevia() {
     const ingresos = parseFormattedNumber(document.getElementById('ingresos').value);
     const valorPrestamo = parseFormattedNumber(document.getElementById('valorPrestamo').value);
     const cuotas = document.getElementById('cuotas').value;
+    const tipoCuota = document.getElementById('tipoCuota').value;
     const valorCuota = parseFormattedNumber(document.getElementById('valorCuota').value);
     const totalPagar = parseFormattedNumber(document.getElementById('totalPagar').value);
     const primerVencimiento = document.getElementById('primerVencimiento').value;
@@ -226,7 +227,7 @@ function mostrarVistaPrevia() {
     pdfDoc.setFontSize(11); // Texto normal
 
     const textoAutorizacion =
-        `Yo, ${nombre}, mayor de edad, identificado con la cédula de ciudadanía N° ${cedula} de ${ciudadCedula}, AUTORIZO EXPRESA e IRREVOCABLEMENTE a ${empresa}, para que de mi salario me sean descontados en (${cuotas}) cuotas PONER TIPO DE CUOTA cada una por valor de ${valorCuotaTexto} MCTE ($ ${document.getElementById('valorCuota').value}), hasta completar la suma de ${valorTotalPagarTexto} MCTE ($ ${document.getElementById('totalPagar').value}) como pago total a lo acordado, teniendo como primer vencimiento el día ${fechaFormateada}.
+        `Yo, ${nombre}, mayor de edad, identificado con la cédula de ciudadanía N° ${cedula} de ${ciudadCedula}, AUTORIZO EXPRESA e IRREVOCABLEMENTE a ${empresa}, para que de mi salario me sean descontados en (${cuotas}) cuotas ${tipoCuota} cada una por valor de ${valorCuotaTexto} MCTE ($ ${document.getElementById('valorCuota').value}), hasta completar la suma de ${valorTotalPagarTexto} MCTE ($ ${document.getElementById('totalPagar').value}) como pago total a lo acordado, teniendo como primer vencimiento el día ${fechaFormateada}.
 
 Igualmente autorizo a ${empresa} en condición de empleador para que, en el evento de terminación de contrato por cualquier causa, descuente de mi salario, sueldo, ahorro personal, bonificaciones, prestaciones sociales, indemnizaciones a que tenga derecho las cuotas que estén adeudando hasta llegar al saldo final acordado.`;
 
