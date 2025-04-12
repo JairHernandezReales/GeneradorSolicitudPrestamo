@@ -1,6 +1,89 @@
 const { jsPDF } = window.jspdf;
 let pdfDoc = null;
 
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBYvhtqP59OzgUFapATW8juXDCpT1QdN8Q",
+    authDomain: "generadorsolicitudprestamo.firebaseapp.com",
+    projectId: "generadorsolicitudprestamo",
+    storageBucket: "generadorsolicitudprestamo.firebasestorage.app",
+    messagingSenderId: "19478179592",
+    appId: "1:19478179592:web:3aae0706ca26a2ce2c46bd",
+    measurementId: "G-B4NH3TWBPP"
+  };
+
+// Inicializa Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// Función para guardar los datos del usuario en Firestore
+async function guardarUsuario() {
+    const nombre = document.getElementById('nombre').value;
+    const cedula = document.getElementById('cedula').value;
+    const ciudadCedula = document.getElementById('ciudadCedula').value;
+    const direccion = document.getElementById('direccion').value;
+    const telefono = document.getElementById('telefono').value;
+    const empresa = document.getElementById('empresa').value;
+    const direccionOficina = document.getElementById('direccionOficina').value;
+    
+    if (!nombre || !cedula) {
+        console.error('Nombre y cédula son campos obligatorios');
+        return;
+    }
+
+    try {
+        await db.collection('usuarios').doc(cedula).set({
+            nombre,
+            cedula,
+            ciudadCedula,
+            direccion,
+            telefono,
+            empresa,
+            direccionOficina,
+            fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('Usuario guardado/actualizado correctamente');
+    } catch (error) {
+        console.error('Error al guardar el usuario:', error);
+    }
+}
+
+// Función para buscar usuario por cédula
+async function buscarPorCedula() {
+    const cedula = document.getElementById('cedula').value;
+    
+    if (!cedula) {
+        alert('Por favor ingrese un número de cédula');
+        return;
+    }
+
+    try {
+        const doc = await db.collection('usuarios').doc(cedula).get();
+        
+        if (doc.exists) {
+            const usuario = doc.data();
+            // Llenar los campos con los datos del usuario
+            document.getElementById('nombre').value = usuario.nombre || '';
+            document.getElementById('ciudadCedula').value = usuario.ciudadCedula || '';
+            document.getElementById('direccion').value = usuario.direccion || '';
+            document.getElementById('telefono').value = usuario.telefono || '';
+            document.getElementById('empresa').value = usuario.empresa || '';
+            document.getElementById('direccionOficina').value = usuario.direccionOficina || '';
+            
+            console.log('Usuario encontrado:', usuario);
+            alert('Datos del usuario cargados correctamente');
+        } else {
+            console.log('No se encontró usuario con esta cédula');
+            alert('No se encontró usuario con esta cédula. Complete los datos para crear un nuevo registro.');
+        }
+    } catch (error) {
+        console.error('Error al buscar usuario:', error);
+        alert('Ocurrió un error al buscar el usuario');
+    }
+}
+
 // Función para formatear números con separadores de miles
 function formatNumber(num) {
     return num.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -127,7 +210,9 @@ function numeroALetras(numero) {
     return 'NUMERO DEMASIADO GRANDE';
 }
 
-function mostrarVistaPrevia() {
+async function mostrarVistaPrevia() {
+    // Primero guardamos los datos del usuario
+    await guardarUsuario();
     // Obtener valores del formulario y limpiar los puntos para cálculos
     const nombre = document.getElementById('nombre').value;
     const cedula = document.getElementById('cedula').value;

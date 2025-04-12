@@ -6,6 +6,9 @@
     <title>Generador de Solicitud de Préstamo</title>
     <link rel="stylesheet" href="estilos.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Agrega Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -13,12 +16,13 @@
         <h1>Generador de Solicitud de Préstamo</h1>
 
         <div id="form-container">
-            <div class="form-group">
-                <input type="text" id="nombre" placeholder="Nombre Completo">
+            <div class="form-group form-display">
+                <input type="text" id="cedula" placeholder="Cédula" class="numeric-input">
+                <button onclick="buscarPorCedula()" class="buttonBuscar">Buscar</button>
             </div>
 
             <div class="form-group">
-                <input type="text" id="cedula" placeholder="Cédula" class="numeric-input">
+                <input type="text" id="nombre" placeholder="Nombre Completo">
             </div>
 
             <div class="form-group">
@@ -59,7 +63,7 @@
 
             <div class="form-group">
                 <select id="tipoCuota" class="form-control">
-                    <option value="" selected>FRECUENCIA DE COBRO</option>
+                    <option value="" selected disabled>FRECUENCIA DE COBRO</option>
                     <option value="QUINCENALES">QUINCENALES</option>
                     <option value="MENSUALES">MENSUALES</option>
                 </select>
