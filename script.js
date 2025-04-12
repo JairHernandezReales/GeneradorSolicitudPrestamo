@@ -45,6 +45,7 @@ async function guardarUsuario() {
             fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log('Usuario guardado/actualizado correctamente');
+        alert('Datos guardados correctamente');
     } catch (error) {
         console.error('Error al guardar el usuario:', error);
     }
@@ -73,7 +74,6 @@ async function buscarPorCedula() {
             document.getElementById('direccionOficina').value = usuario.direccionOficina || '';
             
             console.log('Usuario encontrado:', usuario);
-            alert('Datos del usuario cargados correctamente');
         } else {
             console.log('No se encontró usuario con esta cédula');
             alert('No se encontró usuario con esta cédula. Complete los datos para crear un nuevo registro.');
