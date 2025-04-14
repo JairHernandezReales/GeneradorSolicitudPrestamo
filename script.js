@@ -18,6 +18,104 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
+// Función para calcular el valor de la cuota (PAGO)
+function calcularCuota(valorPrestamo, tasaInteres, numeroCuotas) {
+    // Convertir tasa de interés mensual a decimal (3% -> 0.03)
+    const tasaDecimal = tasaInteres / 100;
+    
+    // Fórmula de cálculo de cuota: P = (VA * i) / (1 - (1 + i)^-n)
+    const cuota = (valorPrestamo * tasaDecimal) / (1 - Math.pow(1 + tasaDecimal, -numeroCuotas));
+    
+    return cuota;
+}
+
+// Función para calcular el total a pagar
+function calcularTotalPagar(valorPrestamo, tasaInteres, numeroCuotas) {
+    const tasaDecimal = tasaInteres / 100;
+    const cuota = (valorPrestamo * tasaDecimal) / (1 - Math.pow(1 + tasaDecimal, -numeroCuotas));
+    
+    // Verificación para evitar NaN en casos extremos
+    if (isNaN(cuota)) {
+        return valorPrestamo; // Si no se puede calcular, devolver al menos el capital
+    }
+    
+    return cuota * numeroCuotas;
+}
+
+// Función para generar la tabla de amortización (para verificación)
+function generarTablaAmortizacion(valorPrestamo, tasaInteres, numeroCuotas) {
+    const tasaDecimal = tasaInteres / 100;
+    const cuota = calcularCuota(valorPrestamo, tasaInteres, numeroCuotas);
+    let saldo = valorPrestamo;
+    let totalIntereses = 0;
+    
+    console.log("Tabla de Amortización:");
+    console.log("Cuota | Capital | Interés | Saldo");
+    
+    for (let i = 1; i <= numeroCuotas; i++) {
+        const interes = saldo * tasaDecimal;
+        const capital = cuota - interes;
+        saldo -= capital;
+        totalIntereses += interes;
+        
+        console.log(`${i} | ${capital.toFixed(2)} | ${interes.toFixed(2)} | ${saldo.toFixed(2)}`);
+    }
+    
+    console.log(`Total intereses: ${totalIntereses.toFixed(2)}`);
+    console.log(`Total pagado: ${(valorPrestamo + totalIntereses).toFixed(2)}`);
+    
+    return valorPrestamo + totalIntereses;
+}
+
+// Función para actualizar los cálculos automáticamente
+function actualizarCalculos() {
+    const valorPrestamo = parseFormattedNumber(document.getElementById('valorPrestamo').value) || 0;
+    let cuotas = parseInt(document.getElementById('cuotas').value) || 1;
+    const tasaInteres = parseFloat(document.getElementById('tasaInteres').value) || 0;
+    const tipoCuota = document.getElementById('tipoCuota').value;
+    
+    // Ajustar cuotas y tasa si es quincenal
+    let cuotasCalculo = cuotas;
+    if (tipoCuota === 'QUINCENALES') {
+        cuotasCalculo = Math.ceil(cuotas / 2); // Convertir quincenas a meses para el cálculo
+    }
+    
+    if (valorPrestamo > 0 && cuotas > 0 && tasaInteres >= 0) {
+        // Calcular valor cuota (basado en meses)
+        let valorCuota = calcularCuota(valorPrestamo, tasaInteres, cuotasCalculo);
+        
+        // Si es quincenal, dividir la cuota mensual en 2
+        if (tipoCuota === 'QUINCENALES') {
+            valorCuota = valorCuota / 2;
+        }
+        
+        document.getElementById('valorCuota').value = formatNumber(Math.round(valorCuota));
+        
+        // Calcular total a pagar
+        const totalPagar = valorCuota * cuotas;
+        document.getElementById('totalPagar').value = formatNumber(Math.round(totalPagar));
+        
+        // Para verificación (puedes comentar esto en producción)
+        generarTablaAmortizacion(valorPrestamo, tasaInteres, cuotasCalculo);
+    } else {
+        // Limpiar campos si los valores no son válidos
+        document.getElementById('valorCuota').value = '';
+        document.getElementById('totalPagar').value = '';
+    }
+}
+
+// Agregar event listeners para cálculo automático
+document.addEventListener('DOMContentLoaded', function() {
+    // Escuchar cambios en todos los campos relevantes
+    document.getElementById('valorPrestamo').addEventListener('input', actualizarCalculos);
+    document.getElementById('cuotas').addEventListener('input', actualizarCalculos);
+    document.getElementById('tasaInteres').addEventListener('input', actualizarCalculos);
+    document.getElementById('tipoCuota').addEventListener('change', actualizarCalculos); // Nuevo listener
+    
+    // Calcular inicialmente si hay valores
+    actualizarCalculos();
+});
+
 // Función para guardar los datos del usuario en Firestore
 async function guardarUsuario() {
     const nombre = document.getElementById('nombre').value;
@@ -45,7 +143,7 @@ async function guardarUsuario() {
             fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log('Usuario guardado/actualizado correctamente');
-        alert('Datos guardados correctamente');
+        console.log('Datos guardados correctamente');
     } catch (error) {
         console.error('Error al guardar el usuario:', error);
     }
@@ -223,11 +321,12 @@ async function mostrarVistaPrevia() {
     const direccionOficina = document.getElementById('direccionOficina').value;
     const ingresos = parseFormattedNumber(document.getElementById('ingresos').value);
     const valorPrestamo = parseFormattedNumber(document.getElementById('valorPrestamo').value);
-    const cuotas = document.getElementById('cuotas').value;
+    const cuotas = parseInt(document.getElementById('cuotas').value);
     const tipoCuota = document.getElementById('tipoCuota').value;
     const valorCuota = parseFormattedNumber(document.getElementById('valorCuota').value);
     const totalPagar = parseFormattedNumber(document.getElementById('totalPagar').value);
     const primerVencimiento = document.getElementById('primerVencimiento').value;
+    const tasaInteres = parseFloat(document.getElementById('tasaInteres').value) || 0;
     
     // Formatear la fecha
     const fechaFormateada = formatFecha(primerVencimiento);
@@ -236,6 +335,11 @@ async function mostrarVistaPrevia() {
     if (!nombre || !cedula || !direccion || !telefono || !empresa || !valorPrestamo) {
         alert('Por favor complete todos los campos obligatorios');
         return;
+    }
+
+    // Función para formatear números con puntos de mil y símbolo de dólar
+    function formatCurrency(num) {
+        return '$' + num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&.');
     }
 
     // Función para determinar si necesita "DE" antes de PESOS (solo para millones exactos)
@@ -250,22 +354,23 @@ async function mostrarVistaPrevia() {
     // Crear PDF con orientación vertical y unidades en milímetros
     pdfDoc = new jsPDF('p', 'mm', 'a4');
 
+    // PRIMERA PÁGINA - SOLICITUD DE PRÉSTAMO
     // Configurar fuente y tamaño base
     pdfDoc.setFont('helvetica', 'normal');
-    pdfDoc.setFontSize(11); // Tamaño base de fuente
+    pdfDoc.setFontSize(11);
 
     // Tabla de información
-    pdfDoc.setFontSize(12); // Tamaño ligeramente mayor para encabezados
+    pdfDoc.setFontSize(12);
     pdfDoc.line(20, 30, 190, 30);
 
     // Primera fila
-    pdfDoc.setFontSize(8); // Tamaño base de fuente
+    pdfDoc.setFontSize(8);
     pdfDoc.text('NOMBRE DEL DEUDOR: ', 20, 40);
-    pdfDoc.setFontSize(11); // Volver al tamaño normal
+    pdfDoc.setFontSize(11);
     pdfDoc.text(nombre, 70, 40);
     pdfDoc.setFontSize(8);
     pdfDoc.text('C.C. N°: ', 150, 40);
-    pdfDoc.setFontSize(11); // Volver al tamaño normal
+    pdfDoc.setFontSize(11);
     pdfDoc.text(cedula, 165, 40);
 
     // Segunda fila
@@ -275,7 +380,7 @@ async function mostrarVistaPrevia() {
     pdfDoc.text(direccion, 70, 50);
     pdfDoc.setFontSize(8);
     pdfDoc.text('TEL:', 150, 50);
-    pdfDoc.setFontSize(11); // Volver al tamaño normal
+    pdfDoc.setFontSize(11);
     pdfDoc.text(telefono, 165, 50);
 
     // Tercera fila
@@ -301,15 +406,15 @@ async function mostrarVistaPrevia() {
     pdfDoc.text('$ ' + document.getElementById('ingresos').value, 70, 80);
     pdfDoc.setFontSize(8);
     pdfDoc.text('V.P: ', 150, 80);
-    pdfDoc.setFontSize(11); // Volver al tamaño normal
+    pdfDoc.setFontSize(11);
     pdfDoc.text('$ ' + document.getElementById('valorPrestamo').value, 165, 80);
 
     pdfDoc.line(20, 85, 190, 85);
 
-    // Autorización de descuento - Título más grande
+    // Autorización de descuento
     pdfDoc.setFontSize(10);
     pdfDoc.text('AUTORIZACIÓN PARA DESCUENTO POR NÓMINA', 60, 95);
-    pdfDoc.setFontSize(11); // Texto normal
+    pdfDoc.setFontSize(11);
 
     const textoAutorizacion =
         `Yo, ${nombre}, mayor de edad, identificado con la cédula de ciudadanía N° ${cedula} de ${ciudadCedula}, AUTORIZO EXPRESA e IRREVOCABLEMENTE a ${empresa}, para que de mi salario me sean descontados en (${cuotas}) cuotas ${tipoCuota} cada una por valor de ${valorCuotaTexto} MCTE ($ ${document.getElementById('valorCuota').value}), hasta completar la suma de ${valorTotalPagarTexto} MCTE ($ ${document.getElementById('totalPagar').value}) como pago total a lo acordado, teniendo como primer vencimiento el día ${fechaFormateada}.
@@ -322,12 +427,12 @@ Igualmente autorizo a ${empresa} en condición de empleador para que, en el even
     });
     pdfDoc.text('Empleado: _________________________', 20, 160);
 
-    // Autorización empleador - Título más grande
+    // Autorización empleador
     pdfDoc.setFontSize(10);
     pdfDoc.text('_________________________________________________', 60, 170);
     pdfDoc.text('AUTORIZACIÓN DESCUENTO POR NÓMINA EMPLEADOR', 60, 175);
     pdfDoc.line(20, 182, 190, 182);
-    pdfDoc.setFontSize(10); // Tamaño intermedio para subtítulos
+    pdfDoc.setFontSize(10);
     pdfDoc.text('Letra de cambio N°__________', 20, 190);
     pdfDoc.text(`Valor del préstamo: $ ______________________`, 20, 200);
 
@@ -346,6 +451,104 @@ El girado reconocerá a favor del beneficiario, intereses durante el plazo de __
     pdfDoc.text('C.C: ______________________________________________', 20, 280);
     pdfDoc.text('C.C N°: _______________________', 130, 280);
 
+// SEGUNDA PÁGINA - TABLA DE AMORTIZACIÓN
+pdfDoc.addPage();
+pdfDoc.setFontSize(14);
+pdfDoc.text('TABLA DE AMORTIZACIÓN', 70, 20);
+
+// Función especial para tabla de amortización (sin decimales)
+function formatTableCurrency(num) {
+    return '$' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Información del préstamo (CON decimales como antes)
+pdfDoc.setFontSize(10);
+pdfDoc.text(`Préstamo: ${formatCurrency(valorPrestamo)}`, 20, 30);
+pdfDoc.text(`Tasa interés: ${tasaInteres}%`, 65, 30);
+pdfDoc.text(`Plazo: ${cuotas} cuotas ${tipoCuota.toLowerCase()}`, 97, 30);
+pdfDoc.text(`Valor cuota: ${formatCurrency(valorCuota)}`, 150, 30);
+
+// Encabezados de la tabla
+pdfDoc.setFontSize(10);
+pdfDoc.text('CUOTA', 20, 45);
+pdfDoc.text('VALOR CUOTA', 50, 45);
+pdfDoc.text('INTERESES', 90, 45);
+pdfDoc.text('CAPITAL', 130, 45);
+pdfDoc.text('SALDO', 170, 45);
+pdfDoc.line(20, 47, 190, 47);
+
+// Generar datos de la tabla (con valores redondeados)
+const cuotaMostrar = valorCuota;
+let saldo = valorPrestamo;
+let totalIntereses = 0;
+let yPosition = 55;
+const esQuincenal = tipoCuota === 'QUINCENALES';
+
+// Variables para manejar quincenas
+let interesMensual = 0;
+let capitalMensual = 0;
+
+for (let i = 1; i <= cuotas; i++) {
+    let interes, capital;
+    
+    if (esQuincenal) {
+        const quincena = i % 2 === 1 ? 1 : 2;
+        
+        if (quincena === 1) {
+            interesMensual = saldo * (tasaInteres / 100);
+            capitalMensual = (cuotaMostrar * 2) - interesMensual;
+            
+            // Dividir y redondear solo para visualización
+            interes = Math.round(interesMensual / 2);
+            capital = Math.round(capitalMensual / 2);
+        } else {
+            interes = Math.round(interesMensual / 2);
+            capital = Math.round(capitalMensual / 2);
+        }
+    } else {
+        interes = Math.round(saldo * (tasaInteres / 100));
+        capital = Math.round(cuotaMostrar - interes);
+    }
+    
+    saldo -= capital;
+    totalIntereses += interes;
+    
+    // Ajuste final para saldo cero
+    if (i === cuotas) {
+        saldo = 0;
+    }
+    
+    // Dibujar fila con valores SIN decimales
+    pdfDoc.text(i.toString(), 20, yPosition);
+    pdfDoc.text(formatTableCurrency(cuotaMostrar), 50, yPosition);
+    pdfDoc.text(formatTableCurrency(interes), 90, yPosition);
+    pdfDoc.text(formatTableCurrency(capital), 130, yPosition);
+    pdfDoc.text(formatTableCurrency(saldo), 170, yPosition);
+    
+    yPosition += 7;
+    
+    // Manejo de paginación
+    if (yPosition > 270 && i < cuotas) {
+        pdfDoc.addPage();
+        yPosition = 20;
+        
+        // Volver a dibujar encabezados
+        pdfDoc.setFontSize(10);
+        pdfDoc.text('CUOTA', 20, yPosition);
+        pdfDoc.text('VALOR CUOTA', 50, yPosition);
+        pdfDoc.text('INTERESES', 90, yPosition);
+        pdfDoc.text('CAPITAL', 130, yPosition);
+        pdfDoc.text('SALDO', 170, yPosition);
+        pdfDoc.line(20, yPosition + 2, 190, yPosition + 2);
+        yPosition += 10;
+    }
+}
+
+// Totales al final (SIN decimales)
+pdfDoc.setFontSize(11);
+pdfDoc.text('TOTAL PAGADO:', 20, yPosition + 10);
+pdfDoc.text(formatTableCurrency(cuotaMostrar * cuotas), 50, yPosition + 10);
+    
     // Mostrar vista previa
     const pdfPreview = document.getElementById('pdf-preview');
     pdfPreview.src = pdfDoc.output('datauristring');
