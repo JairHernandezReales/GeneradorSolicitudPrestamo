@@ -425,12 +425,13 @@ Igualmente autorizo a ${empresa} en condición de empleador para que, en el even
         maxWidth: 170,
         align: 'justify'
     });
-    pdfDoc.text('Empleado: _________________________', 20, 160);
+    pdfDoc.text('___________________________', 20, 170);
+    pdfDoc.text('FIRMA EMPLEADO', 20, 175);
 
     // Autorización empleador
     pdfDoc.setFontSize(10);
-    pdfDoc.text('_________________________________________________', 60, 170);
-    pdfDoc.text('AUTORIZACIÓN DESCUENTO POR NÓMINA EMPLEADOR', 60, 175);
+    pdfDoc.text('_________________________________________________', 90, 170);
+    pdfDoc.text('AUTORIZACIÓN DESCUENTO POR NÓMINA EMPLEADOR', 90, 175);
     pdfDoc.line(20, 182, 190, 182);
     pdfDoc.setFontSize(10);
     pdfDoc.text('Letra de cambio N°__________', 20, 190);
