@@ -10,7 +10,7 @@ const firebaseConfig = {
     messagingSenderId: "19478179592",
     appId: "1:19478179592:web:3aae0706ca26a2ce2c46bd",
     measurementId: "G-B4NH3TWBPP"
-  };
+};
 
 // Inicializa Firebase
 if (!firebase.apps.length) {
@@ -20,12 +20,8 @@ const db = firebase.firestore();
 
 // Función para calcular el valor de la cuota (PAGO)
 function calcularCuota(valorPrestamo, tasaInteres, numeroCuotas) {
-    // Convertir tasa de interés mensual a decimal (3% -> 0.03)
     const tasaDecimal = tasaInteres / 100;
-    
-    // Fórmula de cálculo de cuota: P = (VA * i) / (1 - (1 + i)^-n)
     const cuota = (valorPrestamo * tasaDecimal) / (1 - Math.pow(1 + tasaDecimal, -numeroCuotas));
-    
     return cuota;
 }
 
@@ -34,15 +30,13 @@ function calcularTotalPagar(valorPrestamo, tasaInteres, numeroCuotas) {
     const tasaDecimal = tasaInteres / 100;
     const cuota = (valorPrestamo * tasaDecimal) / (1 - Math.pow(1 + tasaDecimal, -numeroCuotas));
     
-    // Verificación para evitar NaN en casos extremos
     if (isNaN(cuota)) {
-        return valorPrestamo; // Si no se puede calcular, devolver al menos el capital
+        return valorPrestamo;
     }
-    
     return cuota * numeroCuotas;
 }
 
-// Función para generar la tabla de amortización (para verificación)
+// Función para generar la tabla de amortización (para verificación en consola)
 function generarTablaAmortizacion(valorPrestamo, tasaInteres, numeroCuotas) {
     const tasaDecimal = tasaInteres / 100;
     const cuota = calcularCuota(valorPrestamo, tasaInteres, numeroCuotas);
@@ -74,31 +68,24 @@ function actualizarCalculos() {
     const tasaInteres = parseFloat(document.getElementById('tasaInteres').value) || 0;
     const tipoCuota = document.getElementById('tipoCuota').value;
     
-    // Ajustar cuotas y tasa si es quincenal
     let cuotasCalculo = cuotas;
     if (tipoCuota === 'QUINCENALES') {
-        cuotasCalculo = Math.ceil(cuotas / 2); // Convertir quincenas a meses para el cálculo
+        cuotasCalculo = Math.ceil(cuotas / 2);
     }
     
     if (valorPrestamo > 0 && cuotas > 0 && tasaInteres >= 0) {
-        // Calcular valor cuota (basado en meses)
         let valorCuota = calcularCuota(valorPrestamo, tasaInteres, cuotasCalculo);
         
-        // Si es quincenal, dividir la cuota mensual en 2
         if (tipoCuota === 'QUINCENALES') {
             valorCuota = valorCuota / 2;
         }
         
         document.getElementById('valorCuota').value = formatNumber(Math.round(valorCuota));
-        
-        // Calcular total a pagar
         const totalPagar = valorCuota * cuotas;
         document.getElementById('totalPagar').value = formatNumber(Math.round(totalPagar));
         
-        // Para verificación (puedes comentar esto en producción)
         generarTablaAmortizacion(valorPrestamo, tasaInteres, cuotasCalculo);
     } else {
-        // Limpiar campos si los valores no son válidos
         document.getElementById('valorCuota').value = '';
         document.getElementById('totalPagar').value = '';
     }
@@ -106,13 +93,11 @@ function actualizarCalculos() {
 
 // Agregar event listeners para cálculo automático
 document.addEventListener('DOMContentLoaded', function() {
-    // Escuchar cambios en todos los campos relevantes
     document.getElementById('valorPrestamo').addEventListener('input', actualizarCalculos);
     document.getElementById('cuotas').addEventListener('input', actualizarCalculos);
     document.getElementById('tasaInteres').addEventListener('input', actualizarCalculos);
-    document.getElementById('tipoCuota').addEventListener('change', actualizarCalculos); // Nuevo listener
+    document.getElementById('tipoCuota').addEventListener('change', actualizarCalculos);
     
-    // Calcular inicialmente si hay valores
     actualizarCalculos();
 });
 
@@ -143,7 +128,6 @@ async function guardarUsuario() {
             fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log('Usuario guardado/actualizado correctamente');
-        console.log('Datos guardados correctamente');
     } catch (error) {
         console.error('Error al guardar el usuario:', error);
     }
@@ -163,7 +147,6 @@ async function buscarPorCedula() {
         
         if (doc.exists) {
             const usuario = doc.data();
-            // Llenar los campos con los datos del usuario
             document.getElementById('nombre').value = usuario.nombre || '';
             document.getElementById('ciudadCedula').value = usuario.ciudadCedula || '';
             document.getElementById('direccion').value = usuario.direccion || '';
@@ -173,7 +156,6 @@ async function buscarPorCedula() {
             
             console.log('Usuario encontrado:', usuario);
         } else {
-            console.log('No se encontró usuario con esta cédula');
             alert('No se encontró usuario con esta cédula. Complete los datos para crear un nuevo registro.');
         }
     } catch (error) {
@@ -201,8 +183,8 @@ function formatFecha(fechaStr) {
         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
     ];
     
-    const fecha = new Date(fechaStr);
-    const dia = fecha.getDate()+1;
+    const fecha = new Date(fechaStr + 'T00:00:00');
+    const dia = fecha.getDate();
     const mes = meses[fecha.getMonth()];
     const año = fecha.getFullYear();
     
@@ -222,29 +204,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Manejar el evento input para formatear mientras se escribe
     numericInputs.forEach(input => {
         input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             const originalLength = e.target.value.length;
-            
-            // Obtener valor sin puntos
             let value = e.target.value.replace(/\./g, '');
             
-            // Verificar si es un número válido
             if (/^\d*$/.test(value)) {
                 const numValue = parseFloat(value);
                 if (!isNaN(numValue)) {
                     const formattedValue = formatNumber(numValue);
                     e.target.value = formattedValue;
-                    
-                    // Ajustar la posición del cursor
                     const newLength = formattedValue.length;
                     const lengthDiff = newLength - originalLength;
                     e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
                 }
             } else {
-                // Si no es un número válido, mantener solo los dígitos
                 e.target.value = value.replace(/\D/g, '');
             }
         });
@@ -273,20 +248,13 @@ function numeroALetras(numero) {
         let centena = Math.floor(entero / 100);
         let resto = entero % 100;
         
-        // Corrección para quinientos
         if (centena === 5) {
             return 'QUINIENTOS' + (resto !== 0 ? ' ' + numeroALetras(resto) : '');
-        }
-        // Corrección para setecientos
-        else if (centena === 7) {
+        } else if (centena === 7) {
             return 'SETECIENTOS' + (resto !== 0 ? ' ' + numeroALetras(resto) : '');
-        }
-        // Corrección para novecientos
-        else if (centena === 9) {
+        } else if (centena === 9) {
             return 'NOVECIENTOS' + (resto !== 0 ? ' ' + numeroALetras(resto) : '');
-        }
-        // Resto de casos
-        else {
+        } else {
             return (centena === 1 ? 'CIENTO' : unidades[centena] + 'CIENTOS') + 
                    (resto !== 0 ? ' ' + numeroALetras(resto) : '');
         }
@@ -309,9 +277,8 @@ function numeroALetras(numero) {
 }
 
 async function mostrarVistaPrevia() {
-    // Primero guardamos los datos del usuario
     await guardarUsuario();
-    // Obtener valores del formulario y limpiar los puntos para cálculos
+    
     const nombre = document.getElementById('nombre').value;
     const cedula = document.getElementById('cedula').value;
     const ciudadCedula = document.getElementById('ciudadCedula').value;
@@ -328,21 +295,17 @@ async function mostrarVistaPrevia() {
     const primerVencimiento = document.getElementById('primerVencimiento').value;
     const tasaInteres = parseFloat(document.getElementById('tasaInteres').value) || 0;
     
-    // Formatear la fecha
     const fechaFormateada = formatFecha(primerVencimiento);
 
-    // Validar campos obligatorios
     if (!nombre || !cedula || !direccion || !telefono || !empresa || !valorPrestamo) {
         alert('Por favor complete todos los campos obligatorios');
         return;
     }
 
-    // Función para formatear números con puntos de mil y símbolo de dólar
     function formatCurrency(num) {
         return '$' + num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&.');
     }
 
-    // Función para determinar si necesita "DE" antes de PESOS (solo para millones exactos)
     function formatearMoneda(numero, texto) {
         const entero = Math.floor(numero);
         return texto + (entero % 1000000 === 0 && entero >= 1000000 ? ' DE PESOS' : ' PESOS');
@@ -351,15 +314,12 @@ async function mostrarVistaPrevia() {
     const valorTotalPagarTexto = formatearMoneda(totalPagar, numeroALetras(totalPagar));
     const valorCuotaTexto = formatearMoneda(valorCuota, numeroALetras(valorCuota));
 
-    // Crear PDF con orientación vertical y unidades en milímetros
     pdfDoc = new jsPDF('p', 'mm', 'a4');
 
     // PRIMERA PÁGINA - SOLICITUD DE PRÉSTAMO
-    // Configurar fuente y tamaño base
     pdfDoc.setFont('helvetica', 'normal');
     pdfDoc.setFontSize(11);
 
-    // Tabla de información
     pdfDoc.setFontSize(12);
     pdfDoc.line(20, 30, 190, 30);
 
@@ -452,112 +412,145 @@ El girado reconocerá a favor del beneficiario, intereses durante el plazo de __
     pdfDoc.text('C.C: ______________________________________________', 20, 280);
     pdfDoc.text('C.C N°: _______________________', 130, 280);
 
-// SEGUNDA PÁGINA - TABLA DE AMORTIZACIÓN
-pdfDoc.addPage();
-pdfDoc.setFontSize(14);
-pdfDoc.text('TABLA DE AMORTIZACIÓN', 70, 20);
+    // SEGUNDA PÁGINA - TABLA DE AMORTIZACIÓN
+    pdfDoc.addPage();
+    pdfDoc.setFontSize(14);
+    pdfDoc.text(`TABLA DE AMORTIZACIÓN`, 70, 20);
 
-// Función especial para tabla de amortización (sin decimales)
-function formatTableCurrency(num) {
-    return '$' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
+    function formatTableCurrency(num) {
+        return '$' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
 
-// Información del préstamo (CON decimales como antes)
-pdfDoc.setFontSize(10);
-pdfDoc.text(`Préstamo: ${formatCurrency(valorPrestamo)}`, 20, 30);
-pdfDoc.text(`Tasa interés: ${tasaInteres}%`, 65, 30);
-pdfDoc.text(`Plazo: ${cuotas} cuotas ${tipoCuota.toLowerCase()}`, 97, 30);
-pdfDoc.text(`Valor cuota: ${formatCurrency(valorCuota)}`, 150, 30);
+    pdfDoc.setFontSize(10);
+    pdfDoc.text(`Préstamo: ${formatCurrency(valorPrestamo)}`, 20, 30);
+    pdfDoc.text(`Tasa interés: ${tasaInteres}%`, 65, 30);
+    pdfDoc.text(`Plazo: ${cuotas} cuotas ${tipoCuota.toLowerCase()}`, 97, 30);
+    pdfDoc.text(`Valor cuota: ${formatCurrency(valorCuota)}`, 150, 30);
 
-// Encabezados de la tabla
-pdfDoc.setFontSize(10);
-pdfDoc.text('CUOTA', 20, 45);
-pdfDoc.text('VALOR CUOTA', 50, 45);
-pdfDoc.text('INTERESES', 90, 45);
-pdfDoc.text('CAPITAL', 130, 45);
-pdfDoc.text('SALDO', 170, 45);
-pdfDoc.line(20, 47, 190, 47);
+    pdfDoc.setFontSize(9);
+    pdfDoc.text('CUOTA', 15, 45);
+    pdfDoc.text('FECHA', 30, 45);
+    pdfDoc.text('VLR. CUOTA', 55, 45);
+    pdfDoc.text('INTERÉS', 85, 45);
+    pdfDoc.text('CAPITAL', 115, 45);
+    pdfDoc.text('SALDO', 145, 45);
+    pdfDoc.line(15, 47, 190, 47);
 
-// Generar datos de la tabla (con valores redondeados)
-const cuotaMostrar = valorCuota;
-let saldo = valorPrestamo;
-let totalIntereses = 0;
-let yPosition = 55;
-const esQuincenal = tipoCuota === 'QUINCENALES';
+    // --- LÓGICA DE FECHAS CORREGIDA ---
+    const fechaInicial = new Date(primerVencimiento + 'T00:00:00'); 
+    let saldo = valorPrestamo;
+    let totalIntereses = 0;
+    let yPosition = 55;
+    const esQuincenal = tipoCuota === 'QUINCENALES';
 
-// Variables para manejar quincenas
-let interesMensual = 0;
-let capitalMensual = 0;
+    let interesMensual = 0;
+    let capitalMensual = 0;
 
-for (let i = 1; i <= cuotas; i++) {
-    let interes, capital;
-    
-    if (esQuincenal) {
-        const quincena = i % 2 === 1 ? 1 : 2;
+    const diaInicial = fechaInicial.getDate();
+    const mesInicial = fechaInicial.getMonth();
+    const anioInicial = fechaInicial.getFullYear();
+
+    const getUltimoDiaMes = (anio, mes) => new Date(anio, mes + 1, 0).getDate();
+
+    for (let i = 1; i <= cuotas; i++) {
+        let interes, capital;
         
-        if (quincena === 1) {
-            interesMensual = saldo * (tasaInteres / 100);
-            capitalMensual = (cuotaMostrar * 2) - interesMensual;
+        if (esQuincenal) {
+            const quincena = i % 2 === 1 ? 1 : 2;
             
-            // Dividir y redondear solo para visualización
-            interes = Math.round(interesMensual / 2);
-            capital = Math.round(capitalMensual / 2);
+            if (quincena === 1) {
+                interesMensual = saldo * (tasaInteres / 100);
+                capitalMensual = (valorCuota * 2) - interesMensual;
+                interes = Math.round(interesMensual / 2);
+                capital = Math.round(capitalMensual / 2);
+            } else {
+                interes = Math.round(interesMensual / 2);
+                capital = Math.round(capitalMensual / 2);
+            }
         } else {
-            interes = Math.round(interesMensual / 2);
-            capital = Math.round(capitalMensual / 2);
+            interes = Math.round(saldo * (tasaInteres / 100));
+            capital = Math.round(valorCuota - interes);
         }
-    } else {
-        interes = Math.round(saldo * (tasaInteres / 100));
-        capital = Math.round(cuotaMostrar - interes);
-    }
-    
-    saldo -= capital;
-    totalIntereses += interes;
-    
-    // Ajuste final para saldo cero
-    if (i === cuotas) {
-        saldo = 0;
-    }
-    
-    // Dibujar fila con valores SIN decimales
-    pdfDoc.text(i.toString(), 20, yPosition);
-    pdfDoc.text(formatTableCurrency(cuotaMostrar), 50, yPosition);
-    pdfDoc.text(formatTableCurrency(interes), 90, yPosition);
-    pdfDoc.text(formatTableCurrency(capital), 130, yPosition);
-    pdfDoc.text(formatTableCurrency(saldo), 170, yPosition);
-    
-    yPosition += 7;
-    
-    // Manejo de paginación
-    if (yPosition > 270 && i < cuotas) {
-        pdfDoc.addPage();
-        yPosition = 20;
-        
-        // Volver a dibujar encabezados
-        pdfDoc.setFontSize(10);
-        pdfDoc.text('CUOTA', 20, yPosition);
-        pdfDoc.text('VALOR CUOTA', 50, yPosition);
-        pdfDoc.text('INTERESES', 90, yPosition);
-        pdfDoc.text('CAPITAL', 130, yPosition);
-        pdfDoc.text('SALDO', 170, yPosition);
-        pdfDoc.line(20, yPosition + 2, 190, yPosition + 2);
-        yPosition += 10;
-    }
-}
 
-// Totales al final (SIN decimales)
-pdfDoc.setFontSize(11);
-pdfDoc.text('TOTAL PAGADO:', 20, yPosition + 10);
-pdfDoc.text(formatTableCurrency(cuotaMostrar * cuotas), 50, yPosition + 10);
-    
+        saldo -= capital;
+        totalIntereses += interes;
+        if (i === cuotas) saldo = 0;
+
+        // CÁLCULO DE LA FECHA
+        let fechaCuota = new Date(fechaInicial);
+        
+        if (esQuincenal) {
+            fechaCuota.setDate(diaInicial + (15 * (i - 1)));
+            
+            let diaActual = fechaCuota.getDate();
+            let mesActual = fechaCuota.getMonth();
+            let anioActual = fechaCuota.getFullYear();
+            
+            if (diaActual <= 15) {
+                fechaCuota.setDate(15);
+            } else {
+                // En lugar de forzar 30, tomamos el último día real del mes (31, 30, 28 o 29)
+                const ultimoDia = getUltimoDiaMes(anioActual, mesActual);
+                fechaCuota.setDate(ultimoDia);
+            }
+        } else {
+            let mesCalculado = mesInicial + (i - 1);
+            let anioCalculado = anioInicial + Math.floor(mesCalculado / 12);
+            let mesFinal = mesCalculado % 12;
+            
+            fechaCuota = new Date(anioCalculado, mesFinal, 1);
+            
+            const ultimoDia = getUltimoDiaMes(anioCalculado, mesFinal);
+            let diaDeseado = diaInicial;
+            
+            if (diaDeseado > ultimoDia) {
+                diaDeseado = ultimoDia;
+            }
+            
+            fechaCuota.setDate(diaDeseado);
+        }
+
+        const fechaTexto = `${fechaCuota.getDate().toString().padStart(2, '0')}/${(fechaCuota.getMonth() + 1).toString().padStart(2, '0')}/${fechaCuota.getFullYear()}`;
+
+        // Dibujar fila
+        pdfDoc.setFontSize(9);
+        pdfDoc.text(i.toString(), 15, yPosition);
+        pdfDoc.text(fechaTexto, 30, yPosition);
+        pdfDoc.text(formatTableCurrency(valorCuota), 55, yPosition);
+        pdfDoc.text(formatTableCurrency(interes), 85, yPosition);
+        pdfDoc.text(formatTableCurrency(capital), 115, yPosition);
+        pdfDoc.text(formatTableCurrency(saldo), 145, yPosition);
+
+        yPosition += 7;
+
+        // Paginación
+        if (yPosition > 270 && i < cuotas) {
+            pdfDoc.addPage();
+            yPosition = 20;
+
+            pdfDoc.setFontSize(9);
+            pdfDoc.text('CUOTA', 15, yPosition);
+            pdfDoc.text('FECHA', 30, yPosition);
+            pdfDoc.text('VLR. CUOTA', 55, yPosition);
+            pdfDoc.text('INTERÉS', 85, yPosition);
+            pdfDoc.text('CAPITAL', 115, yPosition);
+            pdfDoc.text('SALDO', 145, yPosition);
+            pdfDoc.line(15, yPosition + 2, 190, yPosition + 2);
+            yPosition += 10;
+        }
+    }
+
+    // Totales al final
+    pdfDoc.setFontSize(10);
+    pdfDoc.text('TOTAL PAGADO:', 15, yPosition + 10);
+    pdfDoc.text(formatTableCurrency(valorCuota * cuotas), 55, yPosition + 10);
+    pdfDoc.text(`NOMBRE DEL EMPLEADO: ${nombre}`, 15, yPosition + 20);
+
     // Mostrar vista previa
     const pdfPreview = document.getElementById('pdf-preview');
     pdfPreview.src = pdfDoc.output('datauristring');
     
-    // Mostrar el contenedor de vista previa
     document.getElementById('preview-container').style.display = 'block';
-    
-    // Desplazarse a la vista previa
     document.getElementById('preview-container').scrollIntoView({ behavior: 'smooth' });
 }
 
