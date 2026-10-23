@@ -549,7 +549,6 @@ El girado reconocerá a favor del beneficiario, intereses durante el plazo de __
     const pdfPreview = document.getElementById('pdf-preview');
     pdfPreview.src = pdfDoc.output('datauristring');
     
-    // IMPORTANTE: Cambiado a 'flex' para que el diseño de dos columnas funcione bien
     document.getElementById('preview-container').style.display = 'flex';
     document.getElementById('preview-container').scrollIntoView({ behavior: 'smooth' });
 }
@@ -564,3 +563,34 @@ function descargarPDF() {
 function cerrarVistaPrevia() {
     document.getElementById('preview-container').style.display = 'none';
 }
+
+// --- LÓGICA DEL MODO OSCURO ---
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const iconMoon = document.getElementById('icon-moon');
+    const iconSun = document.getElementById('icon-sun');
+    
+    // Comprobar si el usuario ya había elegido el modo oscuro antes
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        iconMoon.style.display = 'none';
+        iconSun.style.display = 'block';
+    }
+
+    // Evento al hacer clic en el botón
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        
+        // Cambiar el ícono y guardar la preferencia
+        if (document.body.classList.contains('dark-mode')) {
+            iconMoon.style.display = 'none';
+            iconSun.style.display = 'block';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            iconMoon.style.display = 'block';
+            iconSun.style.display = 'none';
+            localStorage.setItem('theme', 'light');
+        }
+    });
+});

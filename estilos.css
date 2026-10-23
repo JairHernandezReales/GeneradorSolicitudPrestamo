@@ -1,17 +1,32 @@
-/* --- VARIABLES DE DISEÑO --- */
+/* --- VARIABLES DE DISEÑO (MODO CLARO POR DEFECTO) --- */
 :root {
-    --color-primario: #1e3a8a; /* Azul oscuro */
-    --color-secundario: #3b82f6; /* Azul brillante */
-    --color-exito: #10b981; /* Verde para descargas */
-    --color-peligro: #ef4444; /* Rojo para cerrar */
+    --color-primario: #1e3a8a;
+    --color-secundario: #3b82f6;
+    --color-exito: #10b981;
+    --color-peligro: #ef4444;
     --color-fondo: #f3f4f6;
     --color-tarjeta: #ffffff;
     --color-texto: #1f2937;
     --color-texto-suave: #6b7280;
     --color-borde: #e5e7eb;
+    --bg-input: #f9fafb;
     --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --radio: 12px;
+}
+
+/* --- VARIABLES MODO OSCURO --- */
+body.dark-mode {
+    --color-primario: #10b981; /* Verde brillante para resaltar en oscuro */
+    --color-secundario: #3b82f6;
+    --color-fondo: #111827;
+    --color-tarjeta: #1f2937;
+    --color-texto: #f9fafb;
+    --color-texto-suave: #9ca3af;
+    --color-borde: #374151;
+    --bg-input: #374151;
+    --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 /* --- RESET Y BASE --- */
@@ -26,21 +41,45 @@ body {
     background-color: var(--color-fondo);
     color: var(--color-texto);
     line-height: 1.5;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* --- BARRA SUPERIOR --- */
 .topbar {
-    background-color: var(--color-primario);
-    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-tarjeta);
+    color: var(--color-texto);
     padding: 15px 30px;
     box-shadow: var(--sombra-suave);
     margin-bottom: 30px;
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid var(--color-borde);
 }
 
 .topbar h1 {
     font-size: 1.25rem;
     font-weight: 600;
     letter-spacing: 0.5px;
+}
+
+/* --- BOTÓN MODO OSCURO --- */
+.btn-theme {
+    background: transparent;
+    border: none;
+    color: var(--color-texto);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-theme:hover {
+    background-color: var(--color-borde);
 }
 
 /* --- LAYOUT PRINCIPAL --- */
@@ -67,6 +106,7 @@ body {
     margin-bottom: 20px;
     box-shadow: var(--sombra-suave);
     border: 1px solid var(--color-borde);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .tarjeta-titulo {
@@ -77,7 +117,7 @@ body {
     color: var(--color-primario);
     margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--color-fondo);
+    border-bottom: 1px solid var(--color-borde);
 }
 
 /* --- GRID Y FORMULARIOS --- */
@@ -111,7 +151,7 @@ input, select {
     font-size: 0.95rem;
     font-family: inherit;
     color: var(--color-texto);
-    background-color: #f9fafb;
+    background-color: var(--bg-input);
     transition: all 0.2s ease;
 }
 
@@ -119,14 +159,15 @@ input:focus, select:focus {
     outline: none;
     border-color: var(--color-secundario);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    background-color: #ffffff;
+    background-color: var(--color-tarjeta);
 }
 
 input:disabled {
-    background-color: #f3f4f6;
+    background-color: var(--bg-input);
     color: var(--color-texto);
     cursor: not-allowed;
     font-weight: 600;
+    opacity: 0.8;
 }
 
 /* --- INPUT CON BOTÓN (Búsqueda) --- */
@@ -160,6 +201,10 @@ input:disabled {
     padding: 24px;
 }
 
+body.dark-mode .tarjeta-resultados {
+    background: linear-gradient(135deg, #064e3b, #10b981);
+}
+
 .resultado-grupo {
     flex: 1;
     text-align: center;
@@ -175,7 +220,6 @@ input:disabled {
     margin-bottom: 4px;
 }
 
-/* Estilizamos los inputs de resultados para que parezcan texto resaltado */
 .resultado-valor {
     background: transparent !important;
     border: none !important;
@@ -203,13 +247,13 @@ input:disabled {
 }
 
 .btn-generar:hover {
-    background-color: #152c6b;
+    filter: brightness(0.9);
     transform: translateY(-2px);
 }
 
 /* --- VISTA PREVIA (COLUMNA DERECHA) --- */
 .col-vista-previa {
-    display: none; /* El JS lo pone en flex */
+    display: none;
     flex: 1.3;
     background-color: var(--color-tarjeta);
     border-radius: var(--radio);
@@ -226,7 +270,7 @@ input:disabled {
 .preview-header {
     padding: 15px 20px;
     border-bottom: 1px solid var(--color-borde);
-    background-color: #f9fafb;
+    background-color: var(--color-tarjeta);
 }
 
 .preview-header h2 {
@@ -237,7 +281,7 @@ input:disabled {
 .preview-body {
     flex: 1;
     padding: 15px;
-    background-color: #e5e7eb;
+    background-color: var(--bg-input);
 }
 
 #pdf-preview {
@@ -245,7 +289,7 @@ input:disabled {
     height: 100%;
     border: none;
     border-radius: 4px;
-    background-color: white;
+    background-color: white; /* El PDF siempre debe tener fondo blanco */
 }
 
 .preview-footer {
@@ -253,7 +297,7 @@ input:disabled {
     display: flex;
     gap: 15px;
     border-top: 1px solid var(--color-borde);
-    background-color: #f9fafb;
+    background-color: var(--color-tarjeta);
 }
 
 #download-btn {
@@ -274,12 +318,12 @@ input:disabled {
 }
 
 #download-btn:hover {
-    background-color: #059669;
+    filter: brightness(0.9);
 }
 
 #close-preview {
     flex: 1;
-    background-color: white;
+    background-color: transparent;
     color: var(--color-peligro);
     border: 1px solid var(--color-peligro);
     padding: 12px;
