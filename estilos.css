@@ -1,119 +1,315 @@
-body {
-    font-family: Arial, sans-serif;
+/* --- VARIABLES DE DISEÑO --- */
+:root {
+    --color-primario: #1e3a8a; /* Azul oscuro */
+    --color-secundario: #3b82f6; /* Azul brillante */
+    --color-exito: #10b981; /* Verde para descargas */
+    --color-peligro: #ef4444; /* Rojo para cerrar */
+    --color-fondo: #f3f4f6;
+    --color-tarjeta: #ffffff;
+    --color-texto: #1f2937;
+    --color-texto-suave: #6b7280;
+    --color-borde: #e5e7eb;
+    --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radio: 12px;
+}
+
+/* --- RESET Y BASE --- */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    line-height: 1.5;
+}
+
+/* --- BARRA SUPERIOR --- */
+.topbar {
+    background-color: var(--color-primario);
+    color: white;
+    padding: 15px 30px;
+    box-shadow: var(--sombra-suave);
+    margin-bottom: 30px;
+}
+
+.topbar h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* --- LAYOUT PRINCIPAL --- */
+.main-layout {
     display: flex;
-    flex-direction: column;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+    align-items: flex-start;
+}
+
+.col-formulario {
+    flex: 1;
+    max-width: 550px;
+    width: 100%;
+}
+
+/* --- TARJETAS --- */
+.tarjeta {
+    background-color: var(--color-tarjeta);
+    border-radius: var(--radio);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--sombra-suave);
+    border: 1px solid var(--color-borde);
+}
+
+.tarjeta-titulo {
+    display: flex;
     align-items: center;
-    background-color: #f5f5f5;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: var(--color-primario);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-fondo);
 }
 
-.container {
-    width: 80%;
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
+/* --- GRID Y FORMULARIOS --- */
+.form-row {
+    display: flex;
+    gap: 15px;
 }
 
-h1 {
-    text-align: center;
-    color: #333;
-}
+.flex-1 { flex: 1; width: 100%; }
+.flex-2 { flex: 2; width: 100%; }
 
 .form-group {
-    margin-bottom: 15px;
-}
-
-.form-display {
     display: flex;
-}
-
-input {
+    flex-direction: column;
+    margin-bottom: 15px;
     width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
 }
 
-input::placeholder {
-    color: #999;
-    font-style: italic;
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-texto-suave);
+    margin-bottom: 6px;
 }
 
-button {
-    padding: 12px 20px;
-    background-color: #4CAF50;
+input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--color-texto);
+    background-color: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-secundario);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #ffffff;
+}
+
+input:disabled {
+    background-color: #f3f4f6;
+    color: var(--color-texto);
+    cursor: not-allowed;
+    font-weight: 600;
+}
+
+/* --- INPUT CON BOTÓN (Búsqueda) --- */
+.input-con-boton {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-buscar {
+    background-color: var(--color-secundario);
     color: white;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    width: 100%;
-}
-
-.buttonBuscar {
-    margin-left: 10px; 
-    width: auto;
-}
-
-select {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-#preview-container {
-    display: none;
-    width: 80%;
-    max-width: 800px;
-    margin: 20px auto;
-    border: 1px solid #ddd;
-    padding: 20px;
-    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
 }
 
-#preview-actions {
-    margin-top: 20px;
+.btn-buscar:hover {
+    background-color: #2563eb;
+}
+
+/* --- TARJETA DE RESULTADOS --- */
+.tarjeta-resultados {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    border: none;
     display: flex;
-    gap: 10px;
+    gap: 20px;
+    padding: 24px;
 }
 
-#download-btn {
-    background-color: #2196F3;
+.resultado-grupo {
     flex: 1;
+    text-align: center;
 }
 
-#download-btn:hover {
-    background-color: #0b7dda;
+.resultado-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
 }
 
-#close-preview {
-    background-color: #f44336;
+/* Estilizamos los inputs de resultados para que parezcan texto resaltado */
+.resultado-valor {
+    background: transparent !important;
+    border: none !important;
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    text-align: center;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* --- BOTÓN GENERAR --- */
+.btn-generar {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--color-primario);
+    color: white;
+    border: none;
+    border-radius: var(--radio);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+    box-shadow: var(--sombra-fuerte);
+}
+
+.btn-generar:hover {
+    background-color: #152c6b;
+    transform: translateY(-2px);
+}
+
+/* --- VISTA PREVIA (COLUMNA DERECHA) --- */
+.col-vista-previa {
+    display: none; /* El JS lo pone en flex */
+    flex: 1.3;
+    background-color: var(--color-tarjeta);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-fuerte);
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+    flex-direction: column;
+    border: 1px solid var(--color-borde);
+    width: 100%;
+}
+
+.preview-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--color-borde);
+    background-color: #f9fafb;
+}
+
+.preview-header h2 {
+    font-size: 1.1rem;
+    color: var(--color-texto);
+}
+
+.preview-body {
     flex: 1;
-}
-
-#close-preview:hover {
-    background-color: #d32f2f;
+    padding: 15px;
+    background-color: #e5e7eb;
 }
 
 #pdf-preview {
     width: 100%;
-    height: 500px;
-    border: 1px solid #ddd;
+    height: 100%;
+    border: none;
     border-radius: 4px;
+    background-color: white;
+}
+
+.preview-footer {
+    padding: 15px 20px;
+    display: flex;
+    gap: 15px;
+    border-top: 1px solid var(--color-borde);
+    background-color: #f9fafb;
+}
+
+#download-btn {
+    flex: 2;
+    background-color: var(--color-exito);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+#download-btn:hover {
+    background-color: #059669;
+}
+
+#close-preview {
+    flex: 1;
+    background-color: white;
+    color: var(--color-peligro);
+    border: 1px solid var(--color-peligro);
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#close-preview:hover {
+    background-color: var(--color-peligro);
+    color: white;
+}
+
+/* --- RESPONSIVE (Móviles) --- */
+@media (max-width: 992px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    
+    .col-vista-previa {
+        position: relative;
+        width: 100%;
+        height: 600px;
+        top: 0;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
 }

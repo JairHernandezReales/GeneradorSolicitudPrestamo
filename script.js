@@ -489,7 +489,6 @@ El girado reconocerá a favor del beneficiario, intereses durante el plazo de __
             if (diaActual <= 15) {
                 fechaCuota.setDate(15);
             } else {
-                // En lugar de forzar 30, tomamos el último día real del mes (31, 30, 28 o 29)
                 const ultimoDia = getUltimoDiaMes(anioActual, mesActual);
                 fechaCuota.setDate(ultimoDia);
             }
@@ -550,7 +549,8 @@ El girado reconocerá a favor del beneficiario, intereses durante el plazo de __
     const pdfPreview = document.getElementById('pdf-preview');
     pdfPreview.src = pdfDoc.output('datauristring');
     
-    document.getElementById('preview-container').style.display = 'block';
+    // IMPORTANTE: Cambiado a 'flex' para que el diseño de dos columnas funcione bien
+    document.getElementById('preview-container').style.display = 'flex';
     document.getElementById('preview-container').scrollIntoView({ behavior: 'smooth' });
 }
 
